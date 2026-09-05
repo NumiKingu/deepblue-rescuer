@@ -21,7 +21,7 @@ public class RescueCenter {
     @Column(nullable = false)
     private String city;
 
-    @OneToMany(mappedBy = "rescueCenter")
+    @OneToMany(mappedBy = "rescueCenter", cascade = CascadeType.ALL)
     private List<RescueCase> cases = new ArrayList<>();
 
     protected RescueCenter() {

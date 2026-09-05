@@ -17,5 +17,5 @@ public interface RescueCaseRepository extends JpaRepository<RescueCase, Long> {
     // Consulta C
     List<RescueCase> findByRescueCenterCode(String code);
 
-    List<RescueCase> findByRescueDateAfterOrderByRescueDateDesc(java.time.LocalDate date);
+    List<RescueCase> findByRescueDateAfterOrderByRescueDateDesc(LocalDate date);
 }

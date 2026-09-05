@@ -21,6 +21,9 @@ public class Animal {
     @Column(name = "scientific_name", nullable = false)
     private String scientificName;
 
+    @Column(name = "tracking_device_code", length = 50)
+    private String trackingDeviceCode;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AnimalSex sex;
@@ -51,6 +54,7 @@ public class Animal {
     public String getScientificName() { return scientificName; }
     public AnimalSex getSex() { return sex; }
     public RescueCase getRescueCase() { return rescueCase; }
+    public String getTrackingDeviceCode() { return trackingDeviceCode; }
 
     @OneToOne(
             mappedBy = "animal",
