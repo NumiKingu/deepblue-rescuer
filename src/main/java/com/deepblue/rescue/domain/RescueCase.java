@@ -51,7 +51,10 @@ public class RescueCase {
     public RescueCenter getRescueCenter() { return rescueCenter; }
 
     //setter
-    public RescueStatus setStatus(RescueStatus status){ return this.status;}
+    //setter
+    public void setStatus(RescueStatus status) {
+        this.status = status;
+    }
 
     @OneToOne(
             mappedBy = "rescueCase",

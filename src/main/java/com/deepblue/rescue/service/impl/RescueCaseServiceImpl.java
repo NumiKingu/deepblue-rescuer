@@ -85,7 +85,7 @@ public class RescueCaseServiceImpl
             String caseCode,
             ChangeRescueStatusRequest request) {
 
-        // TODO 1 y 2:
+        // 1. Buscar el RescueCase
         RescueCase rescueCase = repository
                 .findByCaseCode(caseCode)
                 .orElseThrow(
@@ -94,24 +94,26 @@ public class RescueCaseServiceImpl
                         )
                 );
 
-        // TODO 3:
+        // 2. Obtener el estado actual
         RescueStatus currentStatus = rescueCase.getStatus();
 
-        // TODO 4 y 5:
+        // 3. Validar la transición
         if (!isValidTransition(currentStatus, request.status())) {
             throw new BusinessRuleException(
-                    "Invalid transition from " + currentStatus
-                            + " to " + request.status()
+                    "Cannot change status from "
+                            + currentStatus
+                            + " to "
+                            + request.status()
             );
         }
 
-        // TODO 6:
+        // 4. Cambiar el status  ← ESTA es la línea que probablemente te falta
         rescueCase.setStatus(request.status());
 
-        // TODO 7:
+        // 5. Guardar
         RescueCase saved = repository.save(rescueCase);
 
-        // TODO 8:
+        // 6. Transformar a Response y retornar
         return mapper.toResponse(saved);
     }
 

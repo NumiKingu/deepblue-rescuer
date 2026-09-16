@@ -1,7 +1,14 @@
 package com.deepblue.rescue.service.impl;
 
+import com.deepblue.rescue.domain.Animal;
+import com.deepblue.rescue.domain.RescueCase;
+import com.deepblue.rescue.domain.RescueStatus;
+import com.deepblue.rescue.domain.Specialist;
+import com.deepblue.rescue.domain.Treatment;
 import com.deepblue.rescue.dto.request.CreateTreatmentRequest;
 import com.deepblue.rescue.dto.response.TreatmentResponse;
+import com.deepblue.rescue.exception.BusinessRuleException;
+import com.deepblue.rescue.exception.ResourceNotFoundException;
 import com.deepblue.rescue.mapper.TreatmentMapper;
 import com.deepblue.rescue.repository.AnimalRepository;
 import com.deepblue.rescue.repository.SpecialistRepository;
@@ -38,12 +45,75 @@ public class TreatmentServiceImpl
     }
 
     @Override
+    @Transactional
     public TreatmentResponse register(CreateTreatmentRequest request) {
-        return null;
+
+        // 1. Buscar Animal
+        Animal animal = animalRepository
+                .findByAnimalCode(request.animalCode())
+                .orElseThrow(
+                        () -> new ResourceNotFoundException(
+                                "Animal not found: " + request.animalCode()
+                        )
+                );
+
+        // 2. Buscar Specialist
+        Specialist specialist = specialistRepository
+                .findByProfessionalCode(request.specialistCode())
+                .orElseThrow(
+                        () -> new ResourceNotFoundException(
+                                "Specialist not found: " + request.specialistCode()
+                        )
+                );
+
+        // 3. Validar specialist.active
+        if (!specialist.isActive()) {
+            throw new BusinessRuleException(
+                    "Specialist is not active: " + request.specialistCode()
+            );
+        }
+
+        // 4. Obtener el RescueCase del Animal y validar status
+        RescueCase rescueCase = animal.getRescueCase();
+
+        if (rescueCase.getStatus() == RescueStatus.RELEASED
+                || rescueCase.getStatus() == RescueStatus.CLOSED) {
+            throw new BusinessRuleException(
+                    "Cannot register treatment: animal case is "
+                            + rescueCase.getStatus()
+            );
+        }
+
+        // 5. Validar performedAt
+        if (request.performedAt().toLocalDate().isBefore(rescueCase.getRescueDate())) {
+            throw new BusinessRuleException(
+                    "Treatment date cannot be before rescue date"
+            );
+        }
+
+        // 6. Crear Treatment
+        Treatment treatment = new Treatment(
+                animal,
+                specialist,
+                request.performedAt(),
+                request.type(),
+                request.description()
+        );
+
+        // 7. Guardar
+        Treatment saved = treatmentRepository.save(treatment);
+
+        // 8. Mapear a Response
+        return mapper.toResponse(saved);
     }
 
     @Override
     public List<TreatmentResponse> findByAnimalCode(String animalCode) {
-        return List.of();
+
+        return treatmentRepository
+                .findByAnimalAnimalCodeOrderByPerformedAtAsc(animalCode)
+                .stream()
+                .map(mapper::toResponse)
+                .toList();
     }
 }
