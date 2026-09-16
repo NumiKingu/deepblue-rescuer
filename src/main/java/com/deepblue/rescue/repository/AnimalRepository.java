@@ -2,6 +2,8 @@ package com.deepblue.rescue.repository;
 
 import com.deepblue.rescue.domain.Animal;
 import com.deepblue.rescue.domain.RescueStatus;
+import com.deepblue.rescue.domain.Specialist;
+import com.deepblue.rescue.domain.Treatment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,12 +15,17 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
     // Consulta A
     Optional<Animal> findByAnimalCode(String animalCode);
 
+    Optional<Specialist> findByProfessionalCode(String professionalCode);
+
     // Consulta B
     List<Animal> findByCommonNameContainingIgnoreCase(String text);
 
     List<Animal> findByRescueCaseStatus(RescueStatus status);
 
     List<Animal> findByRescueCaseRescueCenterCode(String centerCode);
+
+    List<Treatment> findByAnimalAnimalCodeOrderByPerformedAtAsc(
+            String animalCode);
 
     @Query("""
     select distinct a

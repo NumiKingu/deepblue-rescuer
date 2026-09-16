@@ -50,6 +50,9 @@ public class RescueCase {
     public RescueStatus getStatus() { return status; }
     public RescueCenter getRescueCenter() { return rescueCenter; }
 
+    //setter
+    public RescueStatus setStatus(RescueStatus status){ return this.status;}
+
     @OneToOne(
             mappedBy = "rescueCase",
             cascade = CascadeType.ALL,
