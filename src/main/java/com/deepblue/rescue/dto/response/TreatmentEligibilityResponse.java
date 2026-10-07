@@ -1,4 +1,8 @@
 package com.deepblue.rescue.dto.response;
 
-public record TreatmentEligibilityResponse() {
+public record TreatmentEligibilityResponse(
+        String animalCode,
+        boolean eligible
+) {
+
 }
