@@ -404,4 +404,100 @@ class RescueCaseControllerTest {
                                 .isMap()
                 );
     }
+
+    @Test
+    void shouldReturn400WhenStatusEnumIsInvalid()
+            throws Exception {
+
+        mockMvc.perform(
+                        patch(
+                                "/api/rescue-cases/{code}/status",
+                                "RES-001"
+                        )
+                                .contentType(
+                                        MediaType.APPLICATION_JSON
+                                )
+                                .content("""
+                                    {
+                                      "status": "FLYING"
+                                    }
+                                    """)
+                )
+                .andExpect(
+                        status().isBadRequest()
+                )
+                .andExpect(
+                        jsonPath("$.timestamp")
+                                .exists()
+                )
+                .andExpect(
+                        jsonPath("$.status")
+                                .value(400)
+                )
+                .andExpect(
+                        jsonPath("$.error")
+                                .value("Bad Request")
+                )
+                .andExpect(
+                        jsonPath("$.message")
+                                .value("Malformed or invalid JSON request")
+                )
+                .andExpect(
+                        jsonPath("$.details.body")
+                                .value("Check JSON syntax and enum values")
+                );
+
+        verify(
+                service,
+                never()
+        )
+                .changeStatus(
+                        anyString(),
+                        any()
+                );
+    }
+
+    @Test
+    void shouldReturn500WhenUnexpectedErrorOccurs()
+            throws Exception {
+
+        when(
+                service.findByCode("RES-500")
+        ).thenThrow(
+                new RuntimeException("boom")
+        );
+
+        mockMvc.perform(
+                        get(
+                                "/api/rescue-cases/{code}",
+                                "RES-500"
+                        )
+                )
+                .andExpect(
+                        status().isInternalServerError()
+                )
+                .andExpect(
+                        jsonPath("$.timestamp")
+                                .exists()
+                )
+                .andExpect(
+                        jsonPath("$.status")
+                                .value(500)
+                )
+                .andExpect(
+                        jsonPath("$.error")
+                                .value("Internal Server Error")
+                )
+                .andExpect(
+                        jsonPath("$.message")
+                                .value("An unexpected error occurred")
+                )
+                .andExpect(
+                        jsonPath("$.details")
+                                .isMap()
+                );
+
+        verify(service)
+                .findByCode("RES-500");
+    }
 }
