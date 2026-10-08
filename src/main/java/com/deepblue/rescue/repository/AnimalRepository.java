@@ -15,8 +15,6 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
     // Consulta A
     Optional<Animal> findByAnimalCode(String animalCode);
 
-    Optional<Specialist> findByProfessionalCode(String professionalCode);
-
     // Consulta B
     List<Animal> findByCommonNameContainingIgnoreCase(String text);
 
@@ -24,8 +22,6 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
 
     List<Animal> findByRescueCaseRescueCenterCode(String centerCode);
 
-    List<Treatment> findByAnimalAnimalCodeOrderByPerformedAtAsc(
-            String animalCode);
 
     @Query("""
     select distinct a
