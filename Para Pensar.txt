@@ -1,0 +1,17 @@
+Paso 1: ¿por qué la URL del fetch es /api/ y no http://localhost:8080/api/?
+Porque la petición va al servidor de Vite (puerto 5173), que la reenvía al backend gracias al proxy. Así el navegador cree que todo viene del mismo origen y se evita el error de CORS. Además, el código no queda atado a un host o puerto concreto.
+
+Paso 2: ¿por qué request lanza el error en lugar de devolverlo?
+Porque TanStack Query decide isError según si la promesa se rechaza. Si request devolviera el error como valor normal, la promesa se resolvería y la query lo trataría como un éxito, con data en vez de error.
+
+Paso 3: ¿qué pasaría si queryKey fuera solo ['rescue-cases'] sin status?
+Todos los estados compartirían la misma entrada de caché. Al cambiar el filtro se mostrarían los datos del estado anterior, y la lista no se volvería a consultar para el estado nuevo.
+
+Paso 4: ¿para qué sirve enabled? ¿Qué pasaría sin él si animalCode fuera undefined?
+enabled impide que la consulta se ejecute hasta que haya un valor válido. Sin él se haría una petición como /api/animals/undefined, que daría un error 404 innecesario.
+
+Paso 5: ¿qué hace invalidateQueries({ queryKey: ['rescue-cases'] }) y por qué afecta a todas las listas por estado?
+Marca como desactualizados los datos en caché cuya clave empieza por ['rescue-cases'] y vuelve a consultar los que están en uso. Afecta a todas las listas porque la coincidencia es por prefijo, y las claves ['rescue-cases', status] lo comparten. Así el caso desaparece de una lista y aparece en la otra sin recargar la página.
+
+Paso 6: ¿por qué useReducer y no un useState por campo? ¿Por qué invalidateQueries usa ['animal', animalCode] sin más sufijos?
+Los cuatro campos forman un solo estado de formulario, y con useReducer se actualizan con una única acción (field) y se reinician con otra (reset), en vez de cuatro useState con sus manejadores. La clave sin sufijos invalida por prefijo todo lo del animal (sus datos, treatments y eligibility), así que tras registrar un tratamiento se refrescan la tabla y la elegibilidad con una sola llamada.
